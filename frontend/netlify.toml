@@ -5,12 +5,12 @@
 
 [build.environment]
   NODE_VERSION = "18.16.0"
-  NPM_FLAGS = "--no-optional"
+  NPM_FLAGS = "--no-optional --legacy-peer-deps"
+  PYTHON_VERSION = "3.8"
+  RUBY_VERSION = "2.7.1"
+  GO_VERSION = "1.21"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-[context.production]
-  environment = { NODE_VERSION = "18.16.0" }
