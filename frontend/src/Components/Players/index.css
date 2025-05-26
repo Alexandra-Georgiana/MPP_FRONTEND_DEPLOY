@@ -1,0 +1,62 @@
+
+.buttons {
+    display: flex;
+    gap: 20px;
+}
+
+button {
+    background-color: #09090900;
+    color: rgb(191, 191, 191);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.play-bar{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: 340px;
+  
+  }
+  
+  .music-widget {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(90deg, #000000 0%, #665e5e 100%);
+    padding: 10px;
+    border-radius: 40px;
+    cursor: grab;
+  }
+  .music-widget .cd-widget-content .controls {
+    width: 100%;
+    overflow: hidden; 
+  }
+  
+  .cd-widget-content {
+    display: flex;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+  }
+  
+  .music-widget .cd-widget-content .controls {
+    width: 350px; 
+    overflow: hidden; 
+  }
+  
+  .music-widget .cd-widget-content .controls p {
+    color: #ffffff98;
+    font-size: 25px;
+    white-space: nowrap;
+    animation: marque 20s linear infinite;
+  }

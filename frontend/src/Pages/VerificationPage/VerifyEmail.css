@@ -1,0 +1,126 @@
+.verify-email-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+    padding: 20px;
+}
+
+.verify-email-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+h2 {
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.instruction {
+    color: #cccccc;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.email {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 30px;
+}
+
+.verification-code-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.code-input {
+    width: 50px;
+    height: 60px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    font-size: 24px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.code-input:focus {
+    border-color: #ad9b94;
+    outline: none;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.error-message {
+    color: #ff6b6b;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.verify-button {
+    background-color: #ad9b94;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 20px;
+}
+
+.verify-button:hover {
+    background-color: #998880;
+    transform: translateY(-2px);
+}
+
+.verify-button:disabled {
+    background-color: #666666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.resend-code {
+    margin-top: 20px;
+}
+
+.resend-code p {
+    color: #cccccc;
+    margin-bottom: 10px;
+}
+
+.resend-button {
+    background: transparent;
+    border: 2px solid #ad9b94;
+    color: #ad9b94;
+    padding: 10px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.resend-button:hover {
+    background: rgba(173, 155, 148, 0.1);
+}
+
+.resend-button:disabled {
+    border-color: #666666;
+    color: #666666;
+    cursor: not-allowed;
+} 

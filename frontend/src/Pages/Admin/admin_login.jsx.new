@@ -1,0 +1,109 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const AdminLogin = () => {
+    const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleSubmit = async () => {
+        if (!email || !password) {
+            alert('Email and password are required.');
+            return;
+        }
+
+        try {
+            console.log('Sending request to /api/admin/login with email:', email);
+            const response = await fetch('http://localhost:3000/api/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                }),
+            });
+
+            console.log('Response status:', response.status);
+
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (e) {
+                throw new Error('Failed to parse server response');
+            }
+
+            if (!response.ok) {
+                throw new Error(errorData.error || 'Failed to login');
+            }
+
+            console.log('Login response:', errorData);
+
+            if (errorData.token) {
+                // Save token and admin info in localStorage
+                localStorage.setItem('adminToken', errorData.token);
+                localStorage.setItem('admin', JSON.stringify({
+                    id: errorData.admin.id,
+                    email: errorData.admin.email,
+                }));
+                
+                navigate('/admin');
+            } else {
+                throw new Error('No token received from server');
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+            alert(error.message || 'An error occurred during login. Please try again.');
+        }
+    };
+
+    return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", gap: "10px" }}>
+            <p style={{ color: "white", fontSize: "40px", fontWeight: "bold" }}>Admin Login</p>
+            <div style={{ width: "300px", display: "flex", flexDirection: "column", gap: "15px" }}>
+                <input
+                    type="email"
+                    placeholder="Email"
+                    style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "5px",
+                        border: "1px solid #ccc"
+                    }}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "5px",
+                        border: "1px solid #ccc"
+                    }}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                    style={{
+                        marginTop: "20px",
+                        width: "100%",
+                        padding: "10px",
+                        backgroundColor: "#531B21",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer"
+                    }}
+                    onClick={handleSubmit}
+                >
+                    Log In
+                </button>
+            </div>
+        </div>
+    );
+};
+
+export default AdminLogin;

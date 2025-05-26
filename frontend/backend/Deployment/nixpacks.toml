@@ -1,0 +1,9 @@
+# Nixpacks configuration for Music Player Project
+
+[phases]
+build = "npm install && npm run build"
+start = "npm start"
+
+[variables]
+# Add any environment variables required for the project here
+# Example: API_KEY = "your_api_key"

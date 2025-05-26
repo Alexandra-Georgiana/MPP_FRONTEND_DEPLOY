@@ -1,0 +1,14 @@
+
+.cd-widget-content {
+    display: flex;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+  }
+  
+  .cd-image img {
+    width: 200px;
+    height: 200px;
+    border-radius: 10px;
+  }
+  

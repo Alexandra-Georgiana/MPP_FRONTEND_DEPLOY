@@ -1,0 +1,215 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.basic-page {
+    padding: 0;
+    margin: 0;
+    color: white;
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.liked_title {
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    height: auto;
+    width: 93vw;
+    padding: 20px;
+    margin-top: 40px;
+    margin-left: 40px;
+}
+
+.title-text {
+    font-size: 48px;
+    font-weight: bold;
+}
+
+.username {
+    font-size: 18px;
+    color: #888;
+}
+
+.song-container {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+.song-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.song-table th,
+.song-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.song-table th {
+    background-color: rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+
+.song-table th:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.sort-icon {
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+.song-row:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.title-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.album-cover {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+}
+
+.edit-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 4px;
+    background: #815d5d;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.edit-button:hover {
+    background: #744b4b;
+}
+
+.music-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px;
+    border-radius: 8px;
+    z-index: 1000;
+}
+
+.music-widget button {
+    padding: 10px 20px;
+    background-color: #815d5d;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.music-widget button:hover {
+    background-color: #744b4b;
+}
+
+.cathegories {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: baseline;
+    margin-left: 190px;
+    height: auto;
+    max-width: 100%;
+    margin-top: 40px;
+}
+
+.cathegory {
+    margin-right: 0px;
+    cursor: pointer;
+}
+
+.cathegory:nth-child(1) { margin-right: 200px; }
+.cathegory:nth-child(2) { margin-right: 200px; }
+.cathegory:nth-child(3) { margin-right: 200px; }
+.cathegory:nth-child(4) { margin-right: 100px; }
+
+.line5 {
+    position: relative;
+    margin: 20px 4%;
+    border: 1px solid #815d5d;
+    width: 79%;
+}
+
+.fav_song-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    height: 60vh;
+    width: 82%;
+    margin: 20px auto;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.fav_songs {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+}
+
+.fav_song-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+    border-bottom: 1px solid #744b4b8e;
+}
+
+.fav_album-cover {
+    width: 130px;
+    height: 130px;
+    padding: 10px;
+    object-fit: cover;
+}
+
+.fav_song-details {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+    width: 100%;
+    padding: 0 20px;
+    gap: 10px;
+}
+
+.fav_song-title,
+.fav_song-artist,
+.fav_song-album,
+.fav_song-rating {
+    margin: 0;
+    padding: 5px;
+    text-align: left;
+}

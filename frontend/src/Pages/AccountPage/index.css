@@ -1,0 +1,106 @@
+.account-info{
+    position: absolute;
+    top: 5%;
+    left: 5%;
+    gap: 20px;	
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .title{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+    gap: 20px;	
+  }
+  .title-text{
+    font-family: Economica;
+    font-size: 70px;
+    font-weight: bold;
+    color: white;
+  }
+  .username{
+    font-family: Economica;
+    font-size: 30px;
+    color: white;
+  }
+  .user-info{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: -60px;
+    font-family: Albert Sans;
+    font-weight: 250;
+    font-size: 18px;
+    color: white;
+    text-align: left;
+  }
+  .info{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .avatar{
+    position:absolute;
+    right: 0;
+  }
+  .avatar-img{
+    position: relative;
+    margin-right: 15vw;
+    margin-top: 5vw;
+    width: 26vw;
+    height: 26vw;
+  }
+  .edit{
+    position: absolute;
+    bottom: -70px;
+    background-color: black;
+    color: white;
+    border-radius: 40px;
+    border-width: 3px;
+    border-color: white;
+    width: 13vw;
+    min-width: 100px;
+    text-wrap: nowrap;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  .logout{
+      position: absolute;
+      bottom: -70px;
+      left: 35%;
+      background-color: black;
+      color: white;
+      border-radius: 40px;
+      border-width: 3px;
+      border-color: white;
+      width: 13vw;
+      min-width: 100px;
+      text-wrap: nowrap;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+  }
+  .account-title {
+    font-size: 48px;
+    margin-bottom: 60px;
+    padding: 40px;
+  }
+  .account-details {
+    margin-top: 40px;
+
+  }
+  .account-container {
+    overflow-y: hidden;
+  }
+
+body, html {
+    overflow: hidden;
+}

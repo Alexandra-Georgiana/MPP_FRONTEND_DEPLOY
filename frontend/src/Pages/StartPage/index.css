@@ -1,0 +1,78 @@
+
+.first-page{
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    overflow-y: auto;
+
+  }
+  
+  .fullscreen-image {
+    position: absolute;
+    top: 0;  
+    left: 50%;
+    width: 100%; 
+    height: 120%;
+    object-fit: cover;
+    transform: translateX(-50%); 
+    mask-image: linear-gradient(to bottom, #000000 0%, transparent 100%);
+  }
+  .library{
+    position: absolute;
+    font-family: libre-caslon-display-regular;
+    font-size: 200px;
+    font-weight: extra-light;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #b0abab;
+    white-space: nowrap;
+  }
+  .quote-text{
+    font-family: libre-caslon-display-regular;
+    font-size: 40px;
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #999191;
+    width: 80%;
+  }
+  .author-name{
+    font-family: libre-caslon-display-regular;
+    font-size: 50px;
+    position: absolute;
+    top: 80%;
+    left: 80%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #716f6f;
+    width: 40%;
+  }
+  
+  .browse{
+    position:absolute;
+    top: 90%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #d1b8b8;
+    color: black;
+    font-weight: bold;
+    padding: 10px 80px;
+    border: 2px solid black;
+    border-radius: 12px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+  .browse:hover{
+    background-color: #473838;
+    border-color: #151313;
+  }

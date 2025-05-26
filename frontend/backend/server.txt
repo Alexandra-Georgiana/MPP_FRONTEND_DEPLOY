@@ -1,0 +1,508 @@
+import express from 'express';
+import cors from 'cors';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import CryptoJS from 'crypto-js';
+import fetch from 'node-fetch';
+import bcrypt from 'bcrypt';
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const SECRET_KEY = '65-a4fdy777nn98sns866by66554fdrfrtty';
+
+// Get current directory in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Service URLs from environment variables
+const FLASK_API_URL = process.env.FLASK_API_URL || 'http://localhost:5000';  // Default to local Flask server
+const NODE_API_URL = process.env.NODE_API_URL || 'disabled';  // Node.js backend is disabled
+
+// Helper function to build API URLs
+const buildUrl = (baseUrl, path) => `${baseUrl}${path}`;
+
+// Create uploads directory if it doesn't exist
+const uploadsPath = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath);
+}
+
+// Basic middleware setup
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// CORS configuration
+app.use(cors());
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, 'uploads');
+  },
+  filename: function(req, file, cb) {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024 // 50MB limit
+  },
+  fileFilter: function(req, file, cb) {
+    if (file.fieldname === "albumCover") {
+      if (!file.mimetype.startsWith('image/')) {
+        return cb(new Error('Only image files are allowed for album cover!'), false);
+      }
+    } else if (file.fieldname === "audioFile") {
+      if (!file.mimetype.startsWith('audio/')) {
+        return cb(new Error('Only audio files are allowed for song!'), false);
+      }
+    }
+    cb(null, true);
+  }
+});
+
+// Helper Functions
+function decryptToken(token) {
+  const bytes = CryptoJS.AES.decrypt(token, SECRET_KEY);
+  return bytes.toString(CryptoJS.enc.Utf8);
+}
+
+// Helper function for making API calls to Flask backend
+async function callFlaskApi(endpoint, data, method = 'POST', fallbackEndpoint = null) {
+  console.log(`Calling Flask API: ${endpoint}`, data);
+  try {    // Ensure endpoint starts with a slash
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const primaryUrl = new URL(normalizedEndpoint, FLASK_API_URL).toString();
+      const options = {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+    
+    // Only add body for non-GET requests
+    if (method !== 'GET') {
+      options.body = JSON.stringify(data);
+    }
+    
+    let response = await fetch(primaryUrl, options);
+
+    // Handle 404 with fallback if provided
+    if (!response.ok && response.status === 404 && fallbackEndpoint) {      console.log(`Primary endpoint ${endpoint} failed, trying fallback: ${fallbackEndpoint}`);
+      const fallbackUrl = new URL(fallbackEndpoint, FLASK_API_URL).toString();
+      response = await fetch(fallbackUrl, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+    }
+
+    if (!response.ok) {
+      const errorContent = await response.text();
+      let errorMessage;
+      try {
+        const errorJson = JSON.parse(errorContent);
+        errorMessage = errorJson.error || errorJson.message || 'Unknown error';
+      } catch {
+        errorMessage = errorContent;
+      }
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorMessage}`);
+    }
+
+    // Process successful response
+    try {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+      } else {
+        const text = await response.text();
+        console.warn('Expected JSON response but got text:', text.substring(0, 100));
+        return { message: "Operation completed successfully" };
+      }
+    } catch (jsonError) {
+      console.error('Failed to parse JSON from successful response:', jsonError);
+      return { message: "Operation completed with unrecognized response" };
+    }
+  } catch (error) {
+    console.error('API call error:', error);
+    throw error;
+  }
+}
+
+// Authentication middleware
+async function authenticateUser(req, res, next) {
+  const token = req.headers.authorization?.split('Bearer ')[1] || req.query.token;
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    // Attempt to decrypt token
+    let email;
+    try {
+      email = decryptToken(token);
+    } catch (decryptError) {
+      console.error('Token decryption failed:', decryptError);
+      return res.status(401).json({ error: 'Invalid token format' });
+    }
+
+    if (!email) {
+      console.error('Empty email after token decryption');
+      return res.status(401).json({ error: 'Invalid token - could not extract email' });
+    }
+
+    // Get user data from Flask backend
+    const user = await callFlaskApi('/getUserByEmail', { email });
+    console.log('Auth middleware - User data:', user);
+    
+    if (!user || Object.keys(user).length === 0) {
+      console.error('User not found for email:', email);
+      throw new Error('Failed to authenticate user');
+    }
+
+    // Check if email is verified
+    if (!user.email_verified) {
+      console.log('Unverified email access attempt:', email);
+      return res.status(403).json({ 
+        error: 'Email not verified',
+        needsVerification: true,
+        email: email 
+      });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('Authentication error:', error);
+    res.status(401).json({ error: 'Authentication failed' });
+  }
+}
+
+// Admin authentication middleware
+async function verifyAdminToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) {
+    return res.status(401).json({ error: 'Admin authentication required' });
+  }
+  try {
+    const url = new URL('/api/admin/verify', FLASK_API_URL).toString();
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': authHeader
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to verify admin token');
+    }
+
+    next();
+  } catch (err) {
+    console.error('Admin verification error:', err);
+    res.status(401).json({ error: 'Admin authentication failed' });
+  }
+}
+
+// Static file serving - before API routes but after middleware
+const staticPath = path.join(__dirname, '..', 'dist');
+app.use(express.static(staticPath));
+app.use('/uploads', express.static(uploadsPath));
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+// Token verification endpoint
+app.get('/api/verify-token', authenticateUser, (req, res) => {
+  // Since we got here, the token is valid (authenticateUser middleware passed)
+  res.status(200).json({ valid: true });
+});
+
+// API Routes
+app.post('/api/register', async (req, res) => {
+  try {
+    const response = await callFlaskApi('/registerUser', req.body);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/verify-email', async (req, res) => {
+  try {
+    const response = await callFlaskApi('/verify-email', req.body);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+  try {    // Get user from Flask backend using getUserByEmail endpoint
+    const user = await callFlaskApi('/getUserByEmail', { email });
+    console.log('User data received:', user);
+    if (!user || Object.keys(user).length === 0) {
+      return res.status(401).json({ error: 'User not found' });
+    }    // Verify password using bcrypt
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Check if email is verified
+    if (!user.email_verified) {
+      // Generate a temporary token for verification
+      const tempToken = CryptoJS.AES.encrypt(email, SECRET_KEY).toString();
+      return res.status(403).json({ 
+        needsVerification: true,
+        email: email,
+        tempToken: tempToken
+      });
+    }
+
+    // Generate token for authenticated user
+    const token = CryptoJS.AES.encrypt(email, SECRET_KEY).toString();
+    
+    // Return user data without sensitive information
+    const userData = {
+      username: user.username,
+      email: user.email,
+      favoriteGenre: user.favorite_genre,
+      favoriteArtist: user.favorite_artist,
+      bio: user.bio,
+      avatar: user.avatar
+    };
+
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      user: userData
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error during login' });
+  }
+});
+
+app.post('/api/verify-2fa', async (req, res) => {
+  try {
+    const response = await callFlaskApi('/verify-2fa', req.body);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/toggle-2fa', async (req, res) => {
+  try {
+    const response = await callFlaskApi('/toggle-2fa', req.body);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Profile routes
+app.post('/api/update', authenticateUser, upload.single('avatar'), async (req, res) => {
+  try {
+    const userData = {
+      ...req.body,
+      avatar: req.file ? req.file.filename : undefined
+    };
+    const response = await callFlaskApi('/update-profile', userData);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/profile', authenticateUser, async (req, res) => {
+  try {
+    const user = req.user;
+    // Make sure we use the correct URL for the avatar
+    const avatarUrl = user.avatar ? `http://localhost:3000/uploads/${user.avatar}` : null;
+    // Return user data directly without nesting under 'user'
+    res.status(200).json({
+      username: user.username,
+      email: user.email,
+      favoriteGenre: user.favorite_genre,
+      favoriteArtist: user.favorite_artist,
+      bio: user.bio,
+      avatar: avatarUrl
+    });
+  } catch (error) {
+    console.error('Error in /api/profile:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Song routes
+// Support both singular and plural versions of the endpoint
+app.get(['/api/songs', '/api/song'], async (req, res) => {
+  try {
+    const response = await callFlaskApi('/getAllSongs', req.query, 'GET');
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// More specific routes first
+app.get('/api/songs/search/:query', async (req, res) => {
+  try {
+    const response = await callFlaskApi(`/api/searchSongs/${req.params.query}`, {}, 'GET');
+    if (!response.ok) {
+      throw new Error('Error fetching songs from searchSongs API');
+    }
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Song details endpoint that includes ratings and comments
+app.get('/api/songs/details/:trackId', async (req, res) => {
+  try {
+    const response = await fetch(`http://localhost:5000/api/getSongDetails/${req.params.trackId}`);
+    
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('Error fetching song details from Flask:', error);
+      return res.status(response.status).json(error);
+    }
+
+    const data = await response.json();
+    if (!data) {
+      return res.status(404).json({ error: 'Song not found' });
+    }
+
+    // Update image URL if it's a local file
+    if (data.album_image && data.album_image.startsWith('/uploads/')) {
+      data.album_image = `http://localhost:3000${data.album_image}`;
+    }
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error('Error in /api/songs/details/:trackId:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
+// Generic parameter route last
+app.get('/api/songs/:songId', async (req, res) => {
+  try {
+    // Call Flask's getSongById endpoint
+    const response = await fetch(`http://localhost:5000/getSongById/${req.params.songId}`);
+    
+    if (!response.ok) {
+      console.error('Error fetching song details from Flask:', response.status, response.statusText);
+      return res.status(response.status).json({ error: 'Failed to fetch song details' });
+    }
+
+    const song = await response.json();
+    if (!song || Object.keys(song).length === 0) {
+      return res.status(404).json({ error: 'Song not found' });
+    }
+
+    // Update image URL if it's a local file
+    if (song.album_image && song.album_image.startsWith('/uploads/')) {
+      song.album_image = `http://localhost:3000${song.album_image}`;
+    }
+
+    res.status(200).json(song);
+  } catch (error) {
+    console.error('Error in /api/songs/:songId:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
+app.post('/api/songs/review', authenticateUser, async (req, res) => {
+  try {
+    const response = await callFlaskApi('/api/addReview', req.body);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/songs/comment', authenticateUser, async (req, res) => {
+  try {
+    const response = await callFlaskApi('/api/addComment', req.body, 'POST', '/addComment');
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Liked songs routes
+app.post('/api/songs/like', authenticateUser, async (req, res) => {
+  try {
+    const { email } = req.user;
+    const { songId } = req.body;    
+    const response = await callFlaskApi('/api/addToLiked', { userId: email, trackId: songId });
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get liked songs endpoint
+app.post('/api/songs/liked', authenticateUser, async (req, res) => {
+  try {
+    const email = req.user.email; // Get email from authenticated user
+    console.log('Fetching liked songs for email:', email);
+
+    const response = await callFlaskApi('/api/getLikedSongs', { email });
+    res.status(200).json(response);
+  } catch (error) {
+    console.error('Error fetching liked songs:', error);
+    res.status(500).json({ error: 'Failed to fetch liked songs' });
+  }
+});
+
+// Admin routes
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const response = await callFlaskApi('/api/admin/login', req.body);
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/mostCommonGenre/:rating', async (req, res) => {
+  try {
+    const response = await callFlaskApi(`/mostCommonGenre/${req.params.rating}`, {}, 'GET');
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+  const indexPath = path.join(staticPath, 'index.html');
+  console.log('Serving index.html from:', indexPath);
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    console.log('index.html not found at:', indexPath);
+    res.status(404).send('Frontend files not found. Make sure to build the frontend first.');
+  }
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

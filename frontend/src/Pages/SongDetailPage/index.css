@@ -1,0 +1,188 @@
+.album-cover{
+    position: absolute;
+    top: 20%;
+    left: 15%;
+    transform: translate(-50%, -50%);
+    width: 20vw;
+    height: 20vw;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+.song-title{
+    position: absolute;
+    top: 2%;
+    left: 25%;
+    /* transform: translate(-50%, -50%); */
+    white-space: nowrap;
+    font-family: Economica;
+    font-size: 3vw;
+    color: white;
+}
+.song-artist{
+    position: absolute;
+    top: 13%;
+    left: 27%;
+    /* transform: translate(-50%, -50%); */
+    white-space: nowrap;
+    font-family: Economica;
+    font-weight: 200;
+    font-size: 20vw;
+    color: white;
+}
+.song-description{
+    position: absolute;
+    top: 27%;
+    left: 45%;
+    max-width: 1000px;
+    transform: translate(-50%, -50%);
+    font-family: Albert Sans;
+    font-weight: 100;
+    word-wrap: break-word ;
+    font-size: 2vw;
+    color: white;
+    margin-top: 5px;
+}
+.song-details{
+    position: absolute;
+    top: 15%;
+    left: 30%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 66%;
+    height: 590px;
+    background-color: linear-gradient(to bottom, #1a1a1a 0%, transparent 100%);;
+    gap: 20px;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    transition: background-color 0.25s ease;
+}
+.line4{
+    width: 90%;
+    border: 1px solid #000000;
+}
+.rating{
+    color: white;
+    font-size: 40px;
+    position: absolute;
+    top: 42%;
+    left: 6%;
+}
+.like-button{
+    position: absolute;
+    top: 90%;
+    right: 6%;
+    color: white;
+    font-size: 20px;
+    background-color: black;
+    border-radius: 40px;
+}
+.play-CD{
+    position: absolute;
+    top: 30%;
+    right: 2%;
+    transform: translate(-50%, -50%);
+    background-color: black;
+    color: white;
+    border-radius: 40px;
+    width: 150px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.play-PickUp{
+    position: absolute;
+    top: 40%;
+    right: 2%;
+    transform: translate(-50%, -50%);
+    background-color: black;
+    color: white;
+    border-radius: 40px;
+    width: 150px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+.song-list{
+    position: absolute;
+    top: 11.8%;
+    left:0;
+    width: 25%;
+    height: 82.7%;
+    display: flex;
+    flex-direction: column;
+    background-color: #1a1919;
+    gap: 20px;
+    padding: 20px;
+    margin: 0 auto;
+}
+
+.scrolable-song-list{
+    margin-top: 70px;
+    max-height: 500px;
+    overflow-y:auto;
+    padding: 10px;
+    scrollbar-width: none;
+
+}
+.songs{
+    padding: 0;
+    margin: 0;
+    text-align:left;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+}
+.song-item{
+    font-size: 16px;
+    color: white;
+    cursor: pointer;
+}
+
+.song-list-title{
+    position: absolute;
+    top: 2%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: Dongle;
+    font-size: 40px;
+    color: white;
+}
+.line{
+    position: absolute;
+    top: 10%;
+    border: 1px solid #0b0a0a;
+    width: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.song-details{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 66%;
+    height: 590px;
+    background-color: #1a1a1a;
+    gap: 20px;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    mask-image: linear-gradient(to bottom, #000000 0%, transparent 100%);
+    transition: background-color 0.25s ease;
+}  
+
+.review-item{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+    margin-left: -180px;
+    margin-top: 50px;
+    padding: 10px;
+    background-color: #1a1a1a;
+    border-radius: 10px;
+}
