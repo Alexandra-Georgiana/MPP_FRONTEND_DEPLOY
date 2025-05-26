@@ -12,7 +12,8 @@ export default defineConfig({
         changeOrigin: true
       }
     }
-  },  build: {
+  },
+  build: {
     outDir: 'dist',
     assetsDir: 'assets',
     rollupOptions: {
@@ -24,8 +25,12 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
+          icons: ['react-icons/fa', 'react-icons']
         },
       },
     },
+    optimizeDeps: {
+      include: ['react-icons/fa']
+    }
   }
 })
