@@ -6,9 +6,10 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
+COPY .npmrc ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies with specific flags to avoid platform issues
+RUN npm install --production --legacy-peer-deps
 
 # Copy source files
 COPY . .
@@ -19,13 +20,13 @@ RUN npm run build
 # Production stage
 FROM nginx:alpine
 
+# Copy custom nginx config
+COPY nginx.https.conf /etc/nginx/conf.d/default.conf
+
 # Copy built assets from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY nginx.https.conf /etc/nginx/conf.d/default.conf
-
-# Expose port 80
+# Expose port
 EXPOSE 80
 
 # Start nginx
