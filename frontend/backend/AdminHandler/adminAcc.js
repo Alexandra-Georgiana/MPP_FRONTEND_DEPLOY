@@ -1,22 +1,17 @@
-import bcrypt from 'bcryptjs';
-
 const createAdminAcc = () => {
     const adminUsername = "Administrator";
     const adminEmail = "admin@mymusiclib.lib";
-    const admiinPassword = "admin123";
-
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(admiinPassword, salt);
+    const adminPassword = "admin123"; // Note: This should be handled by your backend
 
     const admin = {
-    username: adminUsername,
-    password: hash,
-    email: adminEmail,
-    role: "admin",
-    createAt: new Date().toDateString()
+        username: adminUsername,
+        email: adminEmail,
+        role: "admin",
+        createdAt: new Date().toDateString()
     };
 
+    // Store only non-sensitive data in localStorage
     localStorage.setItem('admin', JSON.stringify(admin));
-
 }
+
 export default createAdminAcc;
