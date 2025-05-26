@@ -12,12 +12,10 @@ export default defineConfig({
         changeOrigin: true
       }
     }
-  },
-  build: {
+  },  build: {
     outDir: 'dist',
     assetsDir: 'assets',
     rollupOptions: {
-      external: ['@rollup/rollup-linux-x64-gnu'],
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
