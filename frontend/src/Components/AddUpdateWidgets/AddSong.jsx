@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import Draggable from "react-draggable";
 import { X } from "lucide-react";
 import "./index.css";
-import config from '../../config';
+//import config from '../../config';
 
 const AddSong = ({ setAddSong, songs, setSongs }) => {
   const nodeRef = useRef(null);
