@@ -16,6 +16,11 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     rollupOptions: {
+      external: [
+        '@rollup/rollup-linux-x64-gnu',
+        '@rollup/rollup-darwin-x64',
+        '@rollup/rollup-win32-x64-msvc'
+      ],
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
